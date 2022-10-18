@@ -1,4 +1,4 @@
-# The-adaptive-Huffman-algorithm-of-Vitter
+# The adaptive Huffman algorithm of Vitter
 by J. S. Vitter
 
 ```
