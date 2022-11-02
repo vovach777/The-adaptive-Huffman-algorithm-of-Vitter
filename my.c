@@ -1,4 +1,4 @@
-(* https://www.geeksforgeeks.org/adaptive-huffman-coding-and-decoding/ *)
+/* https://www.geeksforgeeks.org/adaptive-huffman-coding-and-decoding/ */
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
