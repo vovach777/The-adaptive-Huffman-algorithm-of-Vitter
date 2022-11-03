@@ -18,9 +18,10 @@ typedef struct TagDHTree {
    DHNode nyt;
    DHNode * symbolsIndex;
    unsigned size;
-   unsigned e;
-   unsigned r;
+   unsigned k;
+   unsigned u;
    bool * stack;
+   void* ctx;
    void (*put_bit)(void*,bool);
    void (*put_symbol)(void*,unsigned);
    bool (*get_bit)(void *);
@@ -28,34 +29,45 @@ typedef struct TagDHTree {
    unsigned current_size;
 } DHTree_t, *DHTree;
 
-static void calculate_er(unsigned size, unsigned *e, unsigned *r);
+static void TruncatedBinary(unsigned size, unsigned *k, unsigned *u) {
+/* If n is a power of two, then the coded value for 0 ≤ x < n is the simple binary code for x of length log2(n).
+    Otherwise let k = floor(log2(n)), such that 2k < n < 2k+1 and let u = 2k+1 − n.  */
+	// Set k = floor(log2(n)), i.e., k such that 2^k <= n < 2^(k+1).
+	int kl = 0, t = size;
+	while (t > 1) { kl++;  t >>= 1; }
+   *k=kl;
 
-void init_dh(DHTree ctx, void (*put_bit)(void*,bool),void (*put_symbol)(void*,unsigned), unsigned size) {
+	// Set u to the number of unused codewords = 2^(k+1) - n.
+	*u = (1 << kl + 1) - size;
+}
+
+void init_dh(DHTree ctx, unsigned size) {
    //initialization of tree
    assert(size > 0);
    ctx->root = ctx->nyt = calloc(sizeof(DHNode_t),1);
-   ctx->put_bit = put_bit;
-   ctx->put_symbol = put_symbol;
+   // ctx->put_bit = put_bit;
+   // ctx->put_symbol = put_symbol;
    ctx->size = size;
    ctx->stack = calloc(sizeof(bool), size * 2);
    ctx->symbolsIndex = calloc(sizeof(DHNode), size);
    ctx->current_size = 0;
-   calculate_er(size,&ctx->e,&ctx->r);
+   TruncatedBinary(size,&ctx->k, &ctx->u);
 }
 
-static void calculate_er(unsigned size, unsigned *e, unsigned *r) {
-  int E = 0;
-  int R = -1;
-  for(unsigned M=1; M<=size; M++) {
-      R = R + 1;
-      if (2 * R == M) {
-        E = E + 1;
-        R = 0;
-      }
-  }
-  *e = (unsigned)E;
-  *r = (unsigned)R;
-}
+
+// static void calculate_er(unsigned size, unsigned *e, unsigned *r) {
+//    int E = 0;
+//    int R = -1;
+//    for(unsigned M=1; M<=size; M++) {
+//       R = R + 1;
+//       if (2 * R == M) {
+//         E = E + 1;
+//         R = 0;
+//       }
+//    }
+//    *e = (unsigned)E;
+//    *r = (unsigned)R;
+// }
 
 static void  update_dh(DHTree ctx,unsigned symbol) {
    DHNode cur = ctx->symbolsIndex[symbol], nyt = ctx->nyt;
@@ -143,6 +155,9 @@ unsigned decode_dh_symb(DHTree ctx) {
    return symbol;
 }
 
+#ifdef MY_VITTER_C_MAIN
+
+
 void put_bit(void*tree, bool bit) {
    printf("%d", bit ? 1 : 0);
 }
@@ -195,3 +210,4 @@ int main() {
    printf("\n");
 
 }
+#endif
