@@ -1,6 +1,6 @@
 /* fork of https://github.com/fffaraz/Multimedia/blob/master/Adaptive_Huffman_Coding/compression-code/vitter.c */
 
-#include "vitter_not_me.h"
+#include "vitter.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
